@@ -31,7 +31,7 @@ func TestCreateOddTree(t *testing.T) {
 	merkleTree.CreateTreeBytes(bytes)
 	assert.NotNil(t, merkleTree.Root)
 	assert.Equal(t, len(merkleTree.Leafs), 4)
-	assert.Equal(t, merkleTree.Root.getHashString(), "8cb0006bdfc94427d6298520858c0710e0f86beb")
+	assert.Equal(t, merkleTree.Root.getHashString(), "17a3c8b6a398e426c6356adb7f1dbc8d91db23a1")
 
 	// a tree with thirteen leafs as start
 	bytes = make([][]byte, 13)
@@ -44,7 +44,7 @@ func TestCreateOddTree(t *testing.T) {
 
 	assert.NotNil(t, merkleTree.Root)
 	assert.Equal(t, len(merkleTree.Leafs), 14)
-	assert.Equal(t, merkleTree.Root.getHashString(), "01b9ab5ac901c193d5fb96551e873e19d7848601")
+	assert.Equal(t, merkleTree.Root.getHashString(), "a40e39f789c0b9359b0d11f32a0b87c7b5d2caf9")
 
 }
 
@@ -65,6 +65,7 @@ func TestCreateTreeDifferentApproaches(t *testing.T) {
 		&Node{Content: []byte("second")},
 		&Node{Content: []byte("third")},
 		&Node{Content: []byte("fourth")},
+		&Node{Content: []byte("fifth")},
 	}
 	merkleTree := MerkleTree{Leafs: nodes}
 	merkleTreeRecursive := MerkleTree{Leafs: nodes}
@@ -89,7 +90,7 @@ func TestCreateBigTree(t *testing.T) {
 
 	assert.NotNil(t, merkleTree.Root)
 	assert.Equal(t, len(merkleTree.Leafs), 1000000)
-	assert.Equal(t, merkleTree.Root.getHashString(), "b7c332fe16456d8ab015592a587ccc53a747230c")
+	assert.Equal(t, merkleTree.Root.getHashString(), "87df3eed6314c26c3a95f64358a19c8bbdfcb65f")
 }
 
 func TestMerklePath(t *testing.T) {
@@ -104,7 +105,21 @@ func TestMerklePath(t *testing.T) {
 	path := merkleTree.GetMerklePath(leaf.Hash)
 
 	assert.Equal(t, len(path), 20)
-	assert.Equal(t, merkleTree.Root.getHashString(), "b7c332fe16456d8ab015592a587ccc53a747230c")
-	assert.Equal(t, path.MerkleProof(leaf.Hash).ToString(), "b7c332fe16456d8ab015592a587ccc53a747230c")
+	assert.Equal(t, merkleTree.Root.getHashString(), path.MerkleProof(leaf.Hash).ToString())
+
+}
+
+func TestMerklePathNonExistingNode(t *testing.T) {
+	bytes := make([][]byte, 10)
+	for i := 0; i < 10; i++ {
+		bytes[i] = []byte("a sequence at: " + strconv.Itoa(i))
+	}
+
+	merkleTree := MerkleTree{}
+	merkleTree.CreateTreeBytes(bytes)
+	testNode := Node{Content: []byte("leaf.Hash")}
+	path := merkleTree.GetMerklePath(testNode.GetHash())
+
+	assert.Equal(t, len(path), 0)
 
 }

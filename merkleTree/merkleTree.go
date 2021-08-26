@@ -43,8 +43,7 @@ func (merkleTree *MerkleTree) CreateTree() {
 	merkleTree.populateMap()
 	// handling odd entries with blank value
 	if len(merkleTree.Leafs)%2 == 1 {
-		lastItem := merkleTree.Leafs[len(merkleTree.Leafs)-1]
-		merkleTree.Leafs = append(merkleTree.Leafs, lastItem)
+		merkleTree.Leafs = append(merkleTree.Leafs, &Node{})
 	}
 
 	leafs := merkleTree.Leafs
@@ -61,8 +60,7 @@ func (merkleTree *MerkleTree) CreateTree() {
 			i = 0
 			leafs = levelUp
 			if len(leafs) > 1 && len(leafs)%2 == 1 { //odd entries correction
-				lastItem := leafs[len(leafs)-1]
-				leafs = append(leafs, lastItem)
+				leafs = append(leafs, &Node{})
 			}
 			levelUp = make([]*Node, 0, len(leafs)/2)
 		}
@@ -84,8 +82,7 @@ func (merkleTree *MerkleTree) CreateTreeRecursive(nodes ...*Node) {
 		return
 	}
 	if len(nodes)%2 == 1 { // add blank value if nodes are odd
-		lastItem := nodes[len(nodes)-1]
-		nodes = append(nodes, lastItem)
+		nodes = append(nodes, &Node{})
 	}
 
 	// generating the upper level
@@ -99,13 +96,16 @@ func (merkleTree *MerkleTree) CreateTreeRecursive(nodes ...*Node) {
 	merkleTree.CreateTreeRecursive(nodeStack...)
 }
 
+// helper type to create a merkle path
 type MerkleStep struct {
 	hash        Hash
 	isLeftChild bool
 }
 
+// helper type to calulate a merkle proof
 type MerklePath []MerkleStep
 
+// Merkle proof is a reduce calculation of the merkle path
 func (merklePath MerklePath) MerkleProof(hash Hash) Hash {
 	proof := hash
 	for _, val := range merklePath {
@@ -120,6 +120,9 @@ func (merklePath MerklePath) MerkleProof(hash Hash) Hash {
 	return proof
 }
 
+/* Returns an array of the path with the orientation of the node
+* and the hash. The goal is this array to be reduced
+ */
 func (merkleTree *MerkleTree) GetMerklePath(hash Hash) MerklePath {
 	node, ok := merkleTree.LeafsMap[hash.ToString()]
 	if !ok {

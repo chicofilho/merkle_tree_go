@@ -53,6 +53,12 @@ func TestGetSibling(t *testing.T) {
 	assert.Equal(t, left.getSibling(), &right)
 }
 
+// testing isRoot method
+func TestGetSiblingOfRoot(t *testing.T) {
+	node := Node{Content: []byte("right")}
+	assert.Nil(t, node.getSibling())
+}
+
 // testing hash generation by nodes
 func TestSingleNodeHash(t *testing.T) {
 
